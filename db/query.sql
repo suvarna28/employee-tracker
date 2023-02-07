@@ -30,3 +30,4 @@ FROM employee a
 LEFT JOIN employeerole ON a.role_id = employeerole.id
 LEFT JOIN department ON employeerole.department_id = department.id
 LEFT JOIN employee b ON a.manager_id = b.id;
+
