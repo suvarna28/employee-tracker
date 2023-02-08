@@ -42,8 +42,6 @@ function init() {
         });
 }
 
-// add a role, add an employee, and update an employee role
-
 function selectChoice(data) {
     switch (data.choices) {
         case 'View all departments':
@@ -115,16 +113,28 @@ function addDepartment() {
     ])
         .then((data) => {
             let sql = `INSERT INTO department (dept_name) VALUES ("${data.deptname}")`;
-            db.query(sql, (err, rows) => {
-                if (err) throw err;
-            });
-            console.log(`Added ${data.deptname} to the database`);
-            inquirer.prompt([
-                commonQuestions[0]
-            ])
-                .then((data) => {
-                    selectChoice(data);
+            db.promise().query(sql)
+                .then(([rows]) => {
+                    console.log(`Added ${data.deptname} to the database`);
+                    inquirer.prompt([
+                        commonQuestions[0]
+                    ])
+                        .then((data) => {
+                            selectChoice(data);
+                        });
+
                 });
+            // let sql = `INSERT INTO department (dept_name) VALUES ("${data.deptname}")`;
+            // db.query(sql, (err, rows) => {
+            //     if (err) throw err;
+            // });
+            // console.log(`Added ${data.deptname} to the database`);
+            // inquirer.prompt([
+            //     commonQuestions[0]
+            // ])
+            //     .then((data) => {
+            //         selectChoice(data);
+            //     });
         });
 }
 
