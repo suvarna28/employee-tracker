@@ -1,9 +1,11 @@
+--Inserting initial data in the department table
 INSERT INTO department (dept_name)
     VALUES ("Sales"),
         ("Engineering"),
         ("Finance"),
         ("Legal");
 
+--Inserting initial data in the employee role table
 INSERT INTO employeerole (title, salary, department_id)
     VALUES ("Sales Lead", 100000, 1),
         ("Salesperson", 80000, 1),
@@ -14,6 +16,7 @@ INSERT INTO employeerole (title, salary, department_id)
         ("Legal Team Lead", 250000, 4),
         ("Lawyer", 190000, 4);
 
+--Inserting initial data in the employee table
 INSERT INTO employee (first_name, last_name, role_id, manager_id)
     VALUES ("John", "Doe", 1, null),
         ("Mike", "Chan", 2, 1),

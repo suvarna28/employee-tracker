@@ -1,13 +1,15 @@
 DROP DATABASE IF EXISTS employeetracker_db;
-
 CREATE DATABASE employeetracker_db;
+
 USE employeetracker_db;
 
+-- Schema for department
 CREATE TABLE department (
     id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     dept_name VARCHAR(30) NOT NULL
 );
 
+-- Schema for employee role
 CREATE TABLE employeerole (
     id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     title VARCHAR(30) NOT NULL,
@@ -18,6 +20,7 @@ CREATE TABLE employeerole (
     ON DELETE SET NULL
 );
 
+-- Schema for employee
 CREATE TABLE employee (
     id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     first_name VARCHAR(30) NOT NULL,
