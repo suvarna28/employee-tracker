@@ -23,7 +23,7 @@ const menuQuestion = [{
     name: 'choices',
     choices: ['View all departments', 'View all roles', 'View all employees', 'Add a department',
         'Add a role', 'Add an employee', 'Update an employee role', 'Total utilized budget of a department',
-        'View employees by department']
+        'View employees by department', 'View employees by manager']
 }
 ];
 
@@ -75,6 +75,9 @@ function selectChoice(data) {
             break;
         case 'View employees by department':
             viewEmployeesByDept();
+            break;
+        case 'View employees by manager':
+            viewEmployeesByManager();
             break;
     }
 }
@@ -390,27 +393,81 @@ function viewEmployeesByDept() {
                 {
                     type: 'list',
                     name: 'dept',
-                    message: 'Select the department to view total budget?',
+                    message: 'Select the department to view all the employees',
                     choices: deptArray
                 },
             ])
                 .then((data) => {
-                const sql1 = `SELECT department.dept_name, CONCAT(employee.first_name, ' ', employee.last_name) as employee
+                    const sql1 = `SELECT department.dept_name, CONCAT(employee.first_name, ' ', employee.last_name) as employee
                             FROM employee
                             JOIN employeerole ON employee.role_id = employeerole.id
                             JOIN department ON employeerole.department_id = department.id
                             where department.dept_name = "${data.dept}"`;
-                            db.promise().query(sql1)
-                            .then(([rows]) => {
-                                const table = cTable.getTable(rows);
-                                console.log(table);
-                                inquirer.prompt([
-                                    menuQuestion[0]
-                                ])
-                                    .then((data) => {
-                                        selectChoice(data);
-                                    });
-                            });
+                    db.promise().query(sql1)
+                        .then(([rows]) => {
+                            const table = cTable.getTable(rows);
+                            console.log(table);
+                            inquirer.prompt([
+                                menuQuestion[0]
+                            ])
+                                .then((data) => {
+                                    selectChoice(data);
+                                });
+                        });
+                });
+        });
+}
+
+//Function to view employees by manager
+function viewEmployeesByManager() {
+    let managerNameIdArray = [];
+    const sql = `SELECT CONCAT(b.first_name, ' ', b.last_name) as manager, a.manager_id
+                FROM employee a
+                LEFT JOIN employeerole ON a.role_id = employeerole.id
+                LEFT JOIN department ON employeerole.department_id = department.id
+                LEFT JOIN employee b ON a.manager_id = b.id
+                where a.manager_id is not null`;
+    db.promise().query(sql)
+        .then(([rows]) => {
+            rows.forEach(x => managerNameIdArray.push({ "managername": x['manager'], "managerid": x['manager_id'] }));
+            let managerNameArray = [];
+            managerNameIdArray.forEach(x => { 
+                if (!managerNameArray.includes(x['managername'])) {
+                    managerNameArray.push(x['managername']);
+                }
+            });
+            inquirer.prompt([
+                {
+                    type: 'list',
+                    name: 'manager',
+                    message: 'Select the manager to view all the employees reporting to him/her.',
+                    choices: managerNameArray
+                },
+            ])
+                .then((data) => {
+                    let managerID;
+                    managerNameIdArray.forEach(x => { 
+                        if (x['managername'] === data.manager) { 
+                            managerID = x['managerid'];
+                        }
+                    });
+                    const sql1 = `SELECT CONCAT(b.first_name, ' ', b.last_name) as manager, CONCAT(a.first_name, ' ', a.last_name) as employee
+                                FROM employee a
+                                LEFT JOIN employeerole ON a.role_id = employeerole.id
+                                LEFT JOIN department ON employeerole.department_id = department.id
+                                LEFT JOIN employee b ON a.manager_id = b.id
+                                where a.manager_id = ${managerID}`;
+                    db.promise().query(sql1)
+                        .then(([rows]) => {
+                            const table = cTable.getTable(rows);
+                            console.log(table);
+                            inquirer.prompt([
+                                menuQuestion[0]
+                            ])
+                                .then((data) => {
+                                    selectChoice(data);
+                                });
+                        });
                 });
         });
 }

@@ -43,6 +43,14 @@ JOIN employeerole ON employee.role_id = employeerole.id
 JOIN department ON employeerole.department_id = department.id
 where department.dept_name = ?;
 
+--View employees by manager
+SELECT CONCAT(b.first_name, ' ', b.last_name) as manager, CONCAT(a.first_name, ' ', a.last_name) as employee
+FROM employee a
+LEFT JOIN employeerole ON a.role_id = employeerole.id
+LEFT JOIN department ON employeerole.department_id = department.id
+LEFT JOIN employee b ON a.manager_id = b.id
+where a.manager_id = ?
+
 
 
 
