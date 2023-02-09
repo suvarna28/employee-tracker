@@ -22,7 +22,8 @@ const menuQuestion = [{
     message: 'What would you like to do?',
     name: 'choices',
     choices: ['View all departments', 'View all roles', 'View all employees', 'Add a department',
-        'Add a role', 'Add an employee', 'Update an employee role']
+        'Add a role', 'Add an employee', 'Update an employee role', 'Total utilized budget of a department',
+        'View employees by department']
 }
 ];
 
@@ -69,6 +70,12 @@ function selectChoice(data) {
         case 'Update an employee role':
             updateEmployeeRole();
             break;
+        case 'Total utilized budget of a department':
+            totalBudgetOfDept();
+            break;
+        case 'View employees by department':
+            viewEmployeesByDept();
+            break;
     }
 }
 
@@ -85,7 +92,7 @@ function viewAllEmployees() {
             const table = cTable.getTable(rows);
             console.log(table);
             inquirer.prompt([
-                commonQuestions[0]
+                menuQuestion[0]
             ])
                 .then((data) => {
                     selectChoice(data);
@@ -102,7 +109,7 @@ function viewAllDepartments() {
             const table = cTable.getTable(rows);
             console.log(table);
             inquirer.prompt([
-                commonQuestions[0]
+                menuQuestion[0]
             ])
                 .then((data) => {
                     selectChoice(data);
@@ -126,7 +133,7 @@ function addDepartment() {
                 .then(([rows]) => {
                     console.log(`Added ${data.deptname} to the database`);
                     inquirer.prompt([
-                        commonQuestions[0]
+                        menuQuestion[0]
                     ])
                         .then((data) => {
                             selectChoice(data);
@@ -146,7 +153,7 @@ function viewAllRoles() {
             const table = cTable.getTable(rows);
             console.log(table);
             inquirer.prompt([
-                commonQuestions[0]
+                menuQuestion[0]
             ])
                 .then((data) => {
                     selectChoice(data);
@@ -197,7 +204,7 @@ function addRole() {
                         });
                     console.log(`Added ${data.rolename} to the database`);
                     inquirer.prompt([
-                        commonQuestions[0]
+                        menuQuestion[0]
                     ])
                         .then((data) => {
                             selectChoice(data);
@@ -269,7 +276,7 @@ function addEmployee() {
                                 });
                             console.log(`Added ${data.employeefirstname} ${data.employeelastname} to the database`);
                             inquirer.prompt([
-                                commonQuestions[0]
+                                menuQuestion[0]
                             ])
                                 .then((data) => {
                                     selectChoice(data);
@@ -325,13 +332,85 @@ function updateEmployeeRole() {
                                         });
                                     console.log("Updated employee's role");
                                     inquirer.prompt([
-                                        commonQuestions[0]
+                                        menuQuestion[0]
                                     ])
                                         .then((data) => {
                                             selectChoice(data);
                                         });
                                 });
                         });
+                });
+        });
+}
+
+//Function that displays total utilized budget of a department—in other words, 
+//the combined salaries of all the employees in that department.
+function totalBudgetOfDept() {
+    let deptArray = [];
+    const sql = `SELECT dept_name FROM department`;
+    db.promise().query(sql)
+        .then(([rows]) => {
+            rows.forEach(x => deptArray.push(x['dept_name']));
+            inquirer.prompt([
+                {
+                    type: 'list',
+                    name: 'dept',
+                    message: 'Select the department to view total budget?',
+                    choices: deptArray
+                },
+            ])
+                .then((data) => {
+                    const sql1 = `SELECT sum(employeerole.salary) as total
+                    FROM employee
+                    JOIN employeerole ON employee.role_id = employeerole.id
+                    JOIN department ON employeerole.department_id = department.id
+                    GROUP BY "${data.dept}"`;
+                    db.promise().query(sql1)
+                        .then(([rows]) => {
+                            console.log(`Total budget of ${data.dept} department is ${rows[0]['total']}`);
+                            inquirer.prompt([
+                                menuQuestion[0]
+                            ])
+                                .then((data) => {
+                                    selectChoice(data);
+                                });
+                        });
+                });
+        });
+}
+
+//Function to view employees by department
+function viewEmployeesByDept() {
+    let deptArray = [];
+    const sql = `SELECT dept_name FROM department`;
+    db.promise().query(sql)
+        .then(([rows]) => {
+            rows.forEach(x => deptArray.push(x['dept_name']));
+            inquirer.prompt([
+                {
+                    type: 'list',
+                    name: 'dept',
+                    message: 'Select the department to view total budget?',
+                    choices: deptArray
+                },
+            ])
+                .then((data) => {
+                const sql1 = `SELECT department.dept_name, CONCAT(employee.first_name, ' ', employee.last_name) as employee
+                            FROM employee
+                            JOIN employeerole ON employee.role_id = employeerole.id
+                            JOIN department ON employeerole.department_id = department.id
+                            where department.dept_name = "${data.dept}"`;
+                            db.promise().query(sql1)
+                            .then(([rows]) => {
+                                const table = cTable.getTable(rows);
+                                console.log(table);
+                                inquirer.prompt([
+                                    menuQuestion[0]
+                                ])
+                                    .then((data) => {
+                                        selectChoice(data);
+                                    });
+                            });
                 });
         });
 }
