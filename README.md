@@ -14,6 +14,12 @@ The application can be invoked by using 'node index.js' command.
 * When you choose to add a role then you are prompted to enter the name, salary, and department for the role and that role is added to the database.
 * When you choose to add an employee then you are prompted to enter the employee’s first name, last name, role, and manager, and that employee is added to the database.
 * When you choose to update an employee role then you are prompted to select an employee to update and their new role and this information is updated in the database.
+* When you choose to view total utilized budget of a department then you are prompted to select the department and then their total budget is displayed.
+* When you choose to view employees by department then you are prompted to select the department and then the employees for that department are displayed.
+* When you choose to view employees by manager then you are prompted to select the manager and then the employees reporting to that manager are displayed.
+* When you choose to delete department then you are prompted to select the department and then that department is deleted from the database. 
+* When you choose to delete role then you are prompted to select the role and then that role is deleted from the database. 
+* When you choose to delete employee then you are prompted to select the employee and then that employee is deleted from the database. 
 
 ## Features
 
