@@ -376,7 +376,7 @@ function totalBudgetOfDept() {
                     FROM employee
                     JOIN employeerole ON employee.role_id = employeerole.id
                     JOIN department ON employeerole.department_id = department.id
-                    GROUP BY "${data.dept}"`;
+                    WHERE department.dept_name = "${data.dept}"`;
                     db.promise().query(sql1)
                         .then(([rows]) => {
                             console.log(`Total budget of ${data.dept} department is ${rows[0]['total']}`);
