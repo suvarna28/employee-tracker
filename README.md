@@ -42,7 +42,7 @@ https://github.com/suvarna28/employee-tracker
 
 ## Link to the walkthrough video demonstrating the functionality of the application
 
-
+https://drive.google.com/file/d/1ekNhWge_r7l2kB8iGbhfpzF5BSvJnEVM/view 
 
 ## Credits
 
