@@ -23,7 +23,7 @@ const menuQuestion = [{
     name: 'choices',
     choices: ['View all departments', 'View all roles', 'View all employees', 'Add a department',
         'Add a role', 'Add an employee', 'Update an employee role', 'Total utilized budget of a department',
-        'View employees by department', 'View employees by manager']
+        'View employees by department', 'View employees by manager', 'Delete department', 'Delete role', 'Delete employee']
 }
 ];
 
@@ -78,6 +78,15 @@ function selectChoice(data) {
             break;
         case 'View employees by manager':
             viewEmployeesByManager();
+            break;
+        case 'Delete department':
+            deleteDepartment();
+            break;
+        case 'Delete role':
+            deleteRole();
+            break;
+        case 'Delete employee':
+            deleteEmployee()
             break;
     }
 }
@@ -431,7 +440,7 @@ function viewEmployeesByManager() {
         .then(([rows]) => {
             rows.forEach(x => managerNameIdArray.push({ "managername": x['manager'], "managerid": x['manager_id'] }));
             let managerNameArray = [];
-            managerNameIdArray.forEach(x => { 
+            managerNameIdArray.forEach(x => {
                 if (!managerNameArray.includes(x['managername'])) {
                     managerNameArray.push(x['managername']);
                 }
@@ -446,8 +455,8 @@ function viewEmployeesByManager() {
             ])
                 .then((data) => {
                     let managerID;
-                    managerNameIdArray.forEach(x => { 
-                        if (x['managername'] === data.manager) { 
+                    managerNameIdArray.forEach(x => {
+                        if (x['managername'] === data.manager) {
                             managerID = x['managerid'];
                         }
                     });
@@ -461,6 +470,108 @@ function viewEmployeesByManager() {
                         .then(([rows]) => {
                             const table = cTable.getTable(rows);
                             console.log(table);
+                            inquirer.prompt([
+                                menuQuestion[0]
+                            ])
+                                .then((data) => {
+                                    selectChoice(data);
+                                });
+                        });
+                });
+        });
+}
+
+//Function to delete department
+function deleteDepartment() {
+    let deptArray = [];
+    const sql = `SELECT dept_name FROM department`;
+    db.promise().query(sql)
+        .then(([rows]) => {
+            rows.forEach(x => deptArray.push(x['dept_name']));
+            inquirer.prompt([
+                {
+                    type: 'list',
+                    name: 'dept',
+                    message: 'Select the department to delete',
+                    choices: deptArray
+                },
+            ])
+                .then((data) => {
+                    const sql1 = `DELETE from department where department.dept_name = "${data.dept}"`;
+                    db.promise().query(sql1)
+                        .then(([rows]) => {
+                            console.log(`Department ${data.dept} deleted`);
+                            inquirer.prompt([
+                                menuQuestion[0]
+                            ])
+                                .then((data) => {
+                                    selectChoice(data);
+                                });
+                        });
+                });
+        });
+}
+
+//Function to delete role
+function deleteRole() {
+    let roleArray = [];
+    const sql = `SELECT title FROM employeerole`;
+    db.promise().query(sql)
+        .then(([rows]) => {
+            rows.forEach(x => roleArray.push(x['title']));
+            inquirer.prompt([
+                {
+                    type: 'list',
+                    name: 'role',
+                    message: 'Select the role to delete',
+                    choices: roleArray
+                },
+            ])
+                .then((data) => {
+                    const sql1 = `DELETE from employeerole where employeerole.title = "${data.role}"`;
+                    db.promise().query(sql1)
+                        .then(([rows]) => {
+                            console.log(`Role ${data.role} deleted`);
+                            inquirer.prompt([
+                                menuQuestion[0]
+                            ])
+                                .then((data) => {
+                                    selectChoice(data);
+                                });
+                        });
+                });
+        });
+}
+
+//Function to delete employee
+function deleteEmployee() {
+    let employeeNameIdArray = [];
+    const sql = `SELECT employee.id, CONCAT(employee.first_name, ' ', employee.last_name) as employee 
+                FROM employee`;
+    db.promise().query(sql)
+        .then(([rows]) => {
+            rows.forEach(x => employeeNameIdArray.push({ "empname": x['employee'], "empid": x['id'] }));
+            let employeeArray = [];
+            employeeNameIdArray.forEach(x => employeeArray.push(x['empname']));
+            inquirer.prompt([
+                {
+                    type: 'list',
+                    name: 'employee',
+                    message: 'Select the employee to delete',
+                    choices: employeeArray
+                },
+            ])
+                .then((data) => {
+                    let employeeID;
+                    employeeNameIdArray.forEach(x => {
+                        if (x['empname'] === data.employee) {
+                            employeeID = x['empid'];
+                        }
+                    });
+                    const sql1 = `DELETE from employee where employee.id = ${employeeID}`;
+                    db.promise().query(sql1)
+                        .then(([rows]) => {
+                            console.log(`Employee ${data.employee} deleted`);
                             inquirer.prompt([
                                 menuQuestion[0]
                             ])
